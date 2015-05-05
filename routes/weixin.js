@@ -4,6 +4,7 @@ var url = require('url');
 var router = express.Router();
 var weixin = require('../models/weixin');
 var crypto = require('crypto');
+var app = require('../app');
 
 function sha1(str) {  
     var md5sum = crypto.createHash('sha1');  
@@ -33,6 +34,11 @@ router.get('/check', function(req, res){
     else {  
         res.send("Bad Token!");  
     }  
+})
+
+router.get('/appid', function(req, res){ 
+	var str = JSON.stringify(global.data);
+	res.send(200, str);
 })
 
 module.exports = router;

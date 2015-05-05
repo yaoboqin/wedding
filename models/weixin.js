@@ -1,3 +1,5 @@
+var http = require('http');
+var httpHelper=require('../util/httpHelper');
 var mongoose = require("mongoose");  //  顶会议用户组件
 var Schema = mongoose.Schema;    //  创建模型
 var weixinScheMa = new Schema({
@@ -22,5 +24,27 @@ weixinDAO.prototype.find = function(query, fields, options, callback) {
 weixinDAO.prototype.findOne = function(query, fields, options, callback) {
 	return weixin.findOne(query, fields, options, callback)
 };
+
+global.data = { 
+	appID : 'wx85e1ea6f72fce1e1',
+	appsecret : '3533df73e7c2fe9bc918c3ce468c7e02'
+}
+
+weixinDAO.prototype.getAppId = function(){ 
+	var url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="+global.data.appID+"&secret="+global.data.appsecret;
+	httpHelper.get(url,30000,function(err,req){   
+		req = JSON.parse(req);
+	    if(err){
+	        console.log(err);
+	    }else if(!req.access_token){ 
+	    	console.log(req);
+	    }else{ 
+		    global.data.access_token = req.access_token;
+			global.data.expires_in = req.expires_in;
+			console.log(req);
+	    }
+	 	
+	}, 'utf8')
+}
 
 module.exports = new weixinDAO();

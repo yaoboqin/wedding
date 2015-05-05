@@ -10,6 +10,7 @@ var users = require('./routes/users');
 var signup = require('./routes/signup');
 var weixin = require('./routes/weixin');
 
+var wx = require('./models/weixin');
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/wedding');
 
@@ -63,7 +64,10 @@ app.use(function(err, req, res, next) {
   });
 });
 
+
 app.set('port', process.env.PORT = 2000);
 app.listen(8530);
+
+wx.getAppId();
 
 module.exports = app;
