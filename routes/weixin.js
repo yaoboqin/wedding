@@ -41,4 +41,43 @@ router.get('/appid', function(req, res){
 	res.send(200, str);
 })
 
+router.get('/menuinit', function(req, res){ 
+	var url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token="+global.data.access_token,
+		data = {
+		    "button":[
+				{	
+					"type":"click",
+					"name":"每日资讯",
+					"key":"news"
+				},
+				{
+					"name":"产品",
+					"sub_button":[
+						{	
+							"type":"view",
+							"name":"自粘绑带",
+							"url":"http://www.soso.com/"
+						},
+						{
+							"type":"view",
+							"name":"冷喷剂",
+							"url":"http://v.qq.com/"
+						},
+						{
+							"type":"click",
+							"name":"赞一下我们",
+							"key":"good"
+						}
+					]
+			}]
+		 }
+	weixin.menuInit(url, 30000, data, function(err, doc){ 
+		if(err){ 
+			console.log(err);
+		}else{ 
+			res.send(200, doc);
+		}
+	}, 'utf8')
+})
+
 module.exports = router;

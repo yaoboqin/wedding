@@ -1,6 +1,5 @@
 var http = require('http');
 var https = require('https');
-var qs=require('querystring');
 var iconv = require('iconv-lite'); 
 var BufferHelper = require('bufferhelper');
  
@@ -34,7 +33,7 @@ var httpHelper={
             callback(err);
         });
          
-        var content=qs.stringify(data);
+        var content=JSON.stringify(data);
         req.write(content);
          
         if(timeout&&timeout>0){
@@ -50,6 +49,11 @@ var httpHelper={
         var options=require('url').parse(url);
         options.method='GET';
         this.request(options,timeout,{},callback,encoding);
+    },
+    post: function(url,timeout,data,callback,encoding){
+        var options=require('url').parse(url);
+        options.method='POST';
+        this.request(options,timeout,data,callback,encoding);
     }
 };
  

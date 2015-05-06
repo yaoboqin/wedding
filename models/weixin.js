@@ -26,8 +26,13 @@ weixinDAO.prototype.findOne = function(query, fields, options, callback) {
 };
 
 global.data = { 
-	appID : 'wx85e1ea6f72fce1e1',
-	appsecret : '3533df73e7c2fe9bc918c3ce468c7e02'
+	//老和山夏
+	// appID : 'wx85e1ea6f72fce1e1',
+	// appsecret : '3533df73e7c2fe9bc918c3ce468c7e02'
+
+	//测试号
+	appID : 'wxa36629c12be99284',
+	appsecret : '51e08bb73cf581c2889433f4e14bdc79'
 }
 
 weixinDAO.prototype.getAppId = function(){ 
@@ -45,6 +50,10 @@ weixinDAO.prototype.getAppId = function(){
 	    }
 	 	
 	}, 'utf8')
+}
+
+weixinDAO.prototype.menuInit = function(url,timeout,data,callback,encoding){ 
+	return httpHelper.post(url,timeout,data,callback,encoding)
 }
 
 module.exports = new weixinDAO();
