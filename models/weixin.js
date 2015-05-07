@@ -25,6 +25,26 @@ weixinDAO.prototype.findOne = function(query, fields, options, callback) {
 	return weixin.findOne(query, fields, options, callback)
 };
 
+var getTicket = function(){ 
+	var url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token="+global.data.access_token+"&type=jsapi"
+	httpHelper.get(url,30000,function(err,req){   
+		req = JSON.parse(req);
+	    if(err){
+	        console.log(err);
+	    }else if(!req.ticket){ 
+	    	console.log(req);
+	    }else{ 
+		    global.data.ticket = req.ticket;
+			console.log(req);
+
+			setTimeout(function(){ 
+				getTicket();
+			}, req.expires_in*1000)
+	    }
+	 	
+	}, 'utf8')
+}
+
 global.data = { 
 	//老和山夏
 	// appID : 'wx85e1ea6f72fce1e1',
@@ -36,21 +56,34 @@ global.data = {
 }
 
 weixinDAO.prototype.getAppId = function(){ 
-	var url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="+global.data.appID+"&secret="+global.data.appsecret;
-	httpHelper.get(url,30000,function(err,req){   
-		req = JSON.parse(req);
-	    if(err){
-	        console.log(err);
-	    }else if(!req.access_token){ 
-	    	console.log(req);
-	    }else{ 
-		    global.data.access_token = req.access_token;
-			global.data.expires_in = req.expires_in;
-			console.log(req);
-	    }
-	 	
-	}, 'utf8')
+	var auto = function(){ 
+		var url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="+global.data.appID+"&secret="+global.data.appsecret;
+		httpHelper.get(url,30000,function(err,req){   
+			req = JSON.parse(req);
+		    if(err){
+		        console.log(err);
+		    }else if(!req.access_token){ 
+		    	console.log(req);
+		    }else{ 
+			    global.data.access_token = req.access_token;
+				console.log(req);
+
+				setTimeout(function(){ 
+					auto();
+				}, req.expires_in*1000)
+
+				getTicket();
+		    }
+		 	
+		}, 'utf8')
+	}
+	auto();
 }
+
+
+
+
+
 
 weixinDAO.prototype.menuInit = function(url,timeout,data,callback,encoding){ 
 	return httpHelper.post(url,timeout,data,callback,encoding)

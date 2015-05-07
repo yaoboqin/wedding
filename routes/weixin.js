@@ -36,7 +36,7 @@ router.get('/check', function(req, res){
     }  
 })
 
-router.get('/appid', function(req, res){ 
+router.get('/getdata', function(req, res){ 
 	var str = JSON.stringify(global.data);
 	res.send(200, str);
 })
