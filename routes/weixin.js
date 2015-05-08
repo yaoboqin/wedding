@@ -1,16 +1,56 @@
 var express = require('express');
 var http = require('http');
+var httpHelper=require('../util/httpHelper');
 var url = require('url');
 var router = express.Router();
 var weixin = require('../models/weixin');
 var crypto = require('crypto');
 var app = require('../app');
 
-function sha1(str) {  
+var sha1 = function(str) {  
     var md5sum = crypto.createHash('sha1');  
     md5sum.update(str);  
     str = md5sum.digest('hex');  
     return str;  
+}
+// noncestr
+var createNonceStr = function() {
+	return Math.random().toString(36).substr(2, 15);
+};
+
+// timestamp
+var createTimeStamp = function () {
+	return parseInt(new Date().getTime() / 1000) + '';
+};
+var calcSignature = function (ticket, noncestr, ts, url) {
+	console.log(url)
+	var str = 'jsapi_ticket=' + ticket + '&noncestr=' + noncestr + '&timestamp='+ ts +'&url=' + url;
+	return sha1(str)
+	/*
+	var oriArray = new Array();  
+    oriArray[0] = ticket;  
+    oriArray[1] = noncestr;  
+    oriArray[2] = ts;
+    oriArray[3] = url;
+    oriArray.sort();  
+    var original = oriArray[0]+oriArray[1]+oriArray[2]+oriArray[3];  
+    return sha1(original)
+    */
+}
+var getTicket = function(){ 
+	var url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token="+global.data.access_token+"&type=jsapi"
+	httpHelper.get(url,30000,function(err,req){   
+		req = JSON.parse(req);
+	    if(err){
+	        console.log(err);
+	    }else if(!req.ticket){ 
+	    	console.log(req);
+	    }else{ 
+		    global.data.ticket = req.ticket;
+			console.log(req);
+	    }
+	 	
+	}, 'utf8')
 }
 
 router.get('/check', function(req, res){ 
@@ -36,9 +76,42 @@ router.get('/check', function(req, res){
     }  
 })
 
-router.get('/getdata', function(req, res){ 
-	var str = JSON.stringify(global.data);
-	res.send(200, str);
+router.post('/getdata', function(req, res){ 
+	console.log(req.body.url);
+	var url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token="+global.data.access_token+"&type=jsapi",
+		response = req;
+
+	httpHelper.get(url,30000,function(err,req){   
+		req = JSON.parse(req);
+	    if(err){
+	        console.log(err);
+	    }else if(!req.ticket){ 
+	    	console.log(req);
+	    }else{ 
+		    global.data.ticket = req.ticket;
+			console.log(req);
+
+			var ticket = global.data.ticket,
+				timestamp = createTimeStamp(),
+				nonceStr = createNonceStr(),
+				url = response.body.url,
+				signature = calcSignature(ticket, nonceStr, timestamp, url),
+				data = { 
+					code : 100,
+					result : { 
+						ticket: global.data.ticket,
+						appID : global.data.appID,
+						timestamp : timestamp,
+						nonceStr : nonceStr,
+						signature : signature
+					}
+				}
+			var str = JSON.stringify(data);
+			res.send(200, str);
+	    }
+	 	
+	}, 'utf8')
+	
 })
 
 router.get('/menuinit', function(req, res){ 

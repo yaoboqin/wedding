@@ -25,25 +25,6 @@ weixinDAO.prototype.findOne = function(query, fields, options, callback) {
 	return weixin.findOne(query, fields, options, callback)
 };
 
-var getTicket = function(){ 
-	var url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token="+global.data.access_token+"&type=jsapi"
-	httpHelper.get(url,30000,function(err,req){   
-		req = JSON.parse(req);
-	    if(err){
-	        console.log(err);
-	    }else if(!req.ticket){ 
-	    	console.log(req);
-	    }else{ 
-		    global.data.ticket = req.ticket;
-			console.log(req);
-
-			setTimeout(function(){ 
-				getTicket();
-			}, req.expires_in*1000)
-	    }
-	 	
-	}, 'utf8')
-}
 
 global.data = { 
 	//老和山夏
@@ -71,8 +52,6 @@ weixinDAO.prototype.getAppId = function(){
 				setTimeout(function(){ 
 					auto();
 				}, req.expires_in*1000)
-
-				getTicket();
 		    }
 		 	
 		}, 'utf8')
